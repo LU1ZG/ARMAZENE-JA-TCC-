@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Perfil da Empresa | Armazene-Já</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .shadow-smooth { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Navbar -->
+    <header class="bg-white fixed top-0 left-0 w-full shadow-smooth z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
+            <h1 class="text-2xl font-bold text-orange-500">Armazene-Já</h1>
+            <div class="flex gap-4 items-center">
+                <a href="{{ url_for('dashboard') }}" class="text-gray-600 hover:text-orange-500 transition">Dashboard</a>
+                <a href="{{ url_for('logout') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">Sair</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto mt-28 bg-white rounded-xl shadow-smooth p-8">
+        <!-- Informações da Empresa -->
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Perfil da Empresa</h2>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <div>
+                <p><strong>Nome:</strong> {{ empresa.nome }}</p>
+                <p><strong>Email:</strong> {{ empresa.email }}</p>
+                <p><strong>Tipo:</strong> {{ empresa.tipo }}</p>
+            </div>
+            <div>
+                <p><strong>Total de Anúncios:</strong> {{ total_anuncios }}</p>
+                <p><strong>ID da Empresa:</strong> {{ empresa.id }}</p>
+            </div>
+        </div>
+
+        <!-- Edição Simulada -->
+        <div class="border rounded-lg p-6 bg-gray-50 mb-8">
+            <h3 class="text-lg font-semibold mb-4">Editar Informações (Simulado)</h3>
+            <form onsubmit="event.preventDefault(); alert('Alterações simuladas com sucesso!');">
+                <input type="text" placeholder="Novo nome da empresa" class="border p-3 rounded-lg w-full mb-3">
+                <input type="email" placeholder="Novo email" class="border p-3 rounded-lg w-full mb-3">
+                <button class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg">Salvar (Simulação)</button>
+            </form>
+        </div>
+
+        <!-- Anúncios da Empresa -->
+        <div>
+            <h3 class="text-lg font-semibold mb-4">Seus Anúncios</h3>
+            {% if anuncios %}
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for anuncio in anuncios %}
+                    <a href="{{ url_for('anuncio_detalhado', id=anuncio[0]) }}" class="block bg-white border rounded-lg hover:shadow-lg transition">
+                        {% if anuncio[14] %}
+                            <img src="{{ url_for('static', filename='imagens/' ~ anuncio[14]) }}" alt="Imagem" class="h-40 w-full object-cover rounded-t-lg">
+                        {% endif %}
+                        <div class="p-4">
+                            <h4 class="font-bold text-gray-900 truncate">{{ anuncio[2] }}</h4>
+                            <p class="text-sm text-gray-600">{{ anuncio[10] }} - {{ anuncio[11] }}</p>
+                            <p class="text-orange-500 font-semibold mt-2">R$ {{ anuncio[5] }}/m³</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-500">Nenhum anúncio criado ainda.</p>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>

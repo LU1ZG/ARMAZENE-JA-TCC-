@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ anuncio[2] }} | Armazene-Já</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .shadow-smooth { box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Container principal -->
+    <div class="max-w-6xl mx-auto p-6 bg-white shadow-smooth mt-16 rounded-xl">
+
+        <!-- Imagem -->
+        <div class="mb-6">
+            {% if anuncio[14] %}
+                <img src="{{ url_for('static', filename='imagens/' ~ anuncio[14]) }}" alt="Imagem do Armazém" class="w-full h-96 object-cover rounded-lg">
+            {% else %}
+                <div class="w-full h-96 bg-gray-200 flex items-center justify-center text-gray-500 rounded-lg">
+                    Sem imagem disponível
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Título -->
+        <h1 class="text-3xl font-bold text-orange-600 mb-2">{{ anuncio[2] }}</h1>
+        <p class="text-gray-600 mb-6">{{ anuncio[10] }} - {{ anuncio[11] }}, {{ anuncio[12] }}</p>
+
+        <!-- Descrição -->
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">Descrição do espaço</h2>
+            <p class="text-gray-700 leading-relaxed">{{ anuncio[3] }}</p>
+        </div>
+
+        <!-- Calcular Cubagem -->
+        <div class="mb-10 p-6 border rounded-lg bg-gray-50">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Calcular Cubagem e Estimar Preço</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input type="number" id="comprimento" placeholder="Comprimento (cm)" class="border p-2 rounded-lg">
+                <input type="number" id="largura" placeholder="Largura (cm)" class="border p-2 rounded-lg">
+                <input type="number" id="altura" placeholder="Altura (cm)" class="border p-2 rounded-lg">
+            </div>
+            <button onclick="calcularCubagem()" class="mt-4 bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg">Calcular</button>
+            <div class="mt-4 text-sm text-gray-700 font-medium space-y-1">
+                <p id="resultadoCubagem"></p>
+                <p id="resultadoValor"></p>
+            </div>
+        </div>
+
+        <!-- Simulação de Aluguel -->
+        <div class="mb-10 p-6 border rounded-lg bg-gray-50">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Simular Aluguel do Espaço</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input type="number" id="metros" placeholder="m³ desejados" class="border p-2 rounded-lg">
+                <input type="date" id="dataInicio" class="border p-2 rounded-lg">
+                <input type="date" id="dataFim" class="border p-2 rounded-lg">
+                <button onclick="simularAluguel()" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg">Simular</button>
+            </div>
+
+            <div id="resumoSimulacao" class="mt-6 hidden bg-white border rounded-lg p-4 shadow-smooth">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Resumo da Simulação</h3>
+                <p id="resumoDetalhes" class="text-gray-700"></p>
+                <button onclick="confirmarReserva()" class="mt-4 bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg">Confirmar Reserva (Simulação)</button>
+            </div>
+
+            <p id="mensagemConfirmacao" class="mt-4 text-green-600 font-semibold hidden">
+                ✅ Reserva simulada com sucesso!
+            </p>
+        </div>
+
+        <!-- Ação -->
+        <div class="mt-6 flex justify-between items-center border-t pt-4">
+            <p class="text-sm text-gray-600">Interessado em armazenar aqui?</p>
+            <p class="text-lg font-bold text-orange-500">R$ {{ anuncio[5] }} / m³</p>
+        </div>
+
+        <!-- Voltar -->
+        <div class="mt-6 text-center">
+            <a href="{{ url_for('dashboard') }}" class="text-orange-500 hover:underline text-sm">← Voltar ao dashboard</a>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script>
+        const precoPorMetroCubico = {{ anuncio[5]|float }};
+
+        function calcularCubagem() {
+            const comprimento = parseFloat(document.getElementById("comprimento").value);
+            const largura = parseFloat(document.getElementById("largura").value);
+            const altura = parseFloat(document.getElementById("altura").value);
+
+            if (isNaN(comprimento) || isNaN(largura) || isNaN(altura)) {
+                document.getElementById("resultadoCubagem").innerText = "Preencha todos os campos corretamente.";
+                document.getElementById("resultadoValor").innerText = "";
+                return;
+            }
+
+            const cubagem = (comprimento * largura * altura) / 1000000;
+            const valorTotal = cubagem * precoPorMetroCubico;
+
+            document.getElementById("resultadoCubagem").innerText = `Cubagem: ${cubagem.toFixed(3)} m³`;
+            document.getElementById("resultadoValor").innerText = `Valor estimado: R$ ${valorTotal.toFixed(2)}`;
+        }
+
+        function simularAluguel() {
+            const metros = parseFloat(document.getElementById("metros").value);
+            const dataInicio = new Date(document.getElementById("dataInicio").value);
+            const dataFim = new Date(document.getElementById("dataFim").value);
+
+            if (isNaN(metros) || !dataInicio || !dataFim || dataFim <= dataInicio) {
+                alert("Preencha os campos corretamente (datas e m³).");
+                return;
+            }
+
+            const dias = (dataFim - dataInicio) / (1000 * 60 * 60 * 24);
+            const valorTotal = metros * precoPorMetroCubico * dias;
+
+            const resumo = `
+                <strong>Período:</strong> ${dataInicio.toLocaleDateString()} até ${dataFim.toLocaleDateString()}<br>
+                <strong>Duração:</strong> ${dias} dias<br>
+                <strong>Volume:</strong> ${metros} m³<br>
+                <strong>Valor estimado:</strong> R$ ${valorTotal.toFixed(2)}
+            `;
+
+            document.getElementById("resumoDetalhes").innerHTML = resumo;
+            document.getElementById("resumoSimulacao").classList.remove("hidden");
+            document.getElementById("mensagemConfirmacao").classList.add("hidden");
+        }
+
+        function confirmarReserva() {
+            document.getElementById("mensagemConfirmacao").classList.remove("hidden");
+            document.getElementById("resumoSimulacao").classList.add("hidden");
+        }
+    </script>
+    <!-- Botão de contato -->
+<div class="fixed bottom-6 right-6">
+    <button onclick="abrirContato()" class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-3 rounded-full shadow-lg">💬 Contato</button>
+</div>
+
+<!-- Modal -->
+<div id="modalContato" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
+    <div class="bg-white p-8 rounded-lg shadow-smooth w-96">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Contato com o Armazém</h3>
+        <form onsubmit="enviarMensagem(event)">
+            <input type="text" id="nomeContato" placeholder="Seu nome" class="border p-3 rounded-lg w-full mb-3" required>
+            <input type="email" id="emailContato" placeholder="Seu email" class="border p-3 rounded-lg w-full mb-3" required>
+            <textarea id="mensagemContato" placeholder="Mensagem" class="border p-3 rounded-lg w-full mb-3 h-24" required></textarea>
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="fecharContato()" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Cancelar</button>
+                <button type="submit" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg">Enviar</button>
+            </div>
+        </form>
+        <p id="msgEnviada" class="text-green-600 mt-4 hidden">✅ Mensagem enviada com sucesso!</p>
+    </div>
+</div>
+
+<script>
+  
+function abrirContato() {
+    document.getElementById("modalContato").classList.remove("hidden");
+    document.getElementById("modalContato").classList.add("flex");
+}
+
+function fecharContato() {
+    document.getElementById("modalContato").classList.add("hidden");
+}
+
+function enviarMensagem(event) {
+    event.preventDefault();
+    document.getElementById("msgEnviada").classList.remove("hidden");
+    setTimeout(() => {
+        fecharContato();
+        document.getElementById("msgEnviada").classList.add("hidden");
+        event.target.reset();
+    }, 1500);
+}
+</script>
+
+</body>
+</html>

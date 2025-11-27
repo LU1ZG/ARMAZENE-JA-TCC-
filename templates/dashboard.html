@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Armazene-Já - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f9fafb;
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+<!-- Navbar fixa -->
+<header class="fixed top-0 left-0 w-full bg-white shadow-md z-10 border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-orange-500">Armazene-Já</h1>
+
+    <div class="flex items-center gap-4">
+      <span class="text-gray-700 text-sm font-medium">
+        👋 Seja bem-vindo(a),
+        <a href="{{ url_for('perfil') }}" class="text-orange-500 font-semibold hover:underline transition">
+          {{ empresa.nome }}
+        </a>!
+      </span>
+
+      {% if empresa.tipo == "Armazém" %}
+        <a href="/criar_anuncio" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm transition">
+          Novo Anúncio
+        </a>
+      {% endif %}
+
+      <a href="/logout" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm transition">
+        Sair
+      </a>
+    </div>
+  </div>
+</header>
+
+
+  <!-- Conteúdo principal -->
+  <main class="pt-28 pb-12 max-w-7xl mx-auto px-6">
+    
+    <!-- Filtros -->
+    <section class="bg-white shadow-sm rounded-xl p-5 mb-8">
+      <form method="GET" action="{{ url_for('dashboard') }}" class="flex flex-wrap gap-4 items-center">
+        <input type="text" name="q" placeholder="Buscar por título ou descrição..." 
+               value="{{ request.args.get('q', '') }}"
+               class="p-3 border rounded-lg flex-1 min-w-[250px]" />
+
+        <input type="text" name="cidade" placeholder="Cidade"
+               value="{{ request.args.get('cidade', '') }}"
+               class="p-3 border rounded-lg min-w-[180px]" />
+
+        <input type="number" name="preco_min" placeholder="Preço mín." step="0.01"
+               value="{{ request.args.get('preco_min', '') }}"
+               class="p-3 border rounded-lg w-36" />
+
+        <input type="number" name="preco_max" placeholder="Preço máx." step="0.01"
+               value="{{ request.args.get('preco_max', '') }}"
+               class="p-3 border rounded-lg w-36" />
+
+        <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium">
+          🔍 Buscar
+        </button>
+      </form>
+    </section>
+
+    <!-- Anúncios -->
+    <section>
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6">Anúncios Disponíveis</h2>
+      {% if anuncios %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {% for anuncio in anuncios %}
+            <div class="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden flex flex-col">
+              {% if anuncio[14] %}
+                <img src="{{ url_for('static', filename='imagens/' ~ anuncio[14]) }}" alt="Imagem do anúncio"
+                     class="w-full h-48 object-cover">
+              {% else %}
+                <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500">Sem imagem</div>
+              {% endif %}
+
+              <div class="p-5 flex flex-col flex-1 justify-between">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 truncate">{{ anuncio[2] }}</h3>
+                  <p class="text-sm text-gray-600 mt-1">{{ anuncio[10] }} - {{ anuncio[11] }}</p>
+                  <p class="text-xs text-gray-500 mt-2 line-clamp-2">{{ anuncio[3] }}</p>
+                </div>
+
+                <div class="mt-4 flex justify-between items-center">
+                  <p class="text-orange-600 font-bold text-lg">R$ {{ anuncio[5] }} / m³</p>
+                  <a href="{{ url_for('anuncio_detalhado', id=anuncio[0]) }}"
+                     class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm transition">
+                    Ver Detalhes
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-gray-500 text-center mt-10">Nenhum anúncio encontrado para os filtros aplicados.</p>
+      {% endif %}
+    </section>
+  </main>
+
+</body>
+</html>

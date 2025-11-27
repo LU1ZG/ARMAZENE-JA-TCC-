@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro - Armazene-Já</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>body { font-family: 'Poppins', sans-serif; }</style>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+
+  <div class="bg-white shadow-lg rounded-2xl p-8 w-96 border-t-4 border-orange-500">
+    <h1 class="text-3xl font-bold text-center text-orange-500 mb-6">Criar Conta</h1>
+
+    {% if mensagem %}
+      <p class="text-red-500 text-center mb-4">{{ mensagem }}</p>
+    {% endif %}
+
+    <form method="POST" action="/register" class="space-y-3">
+      <input type="text" name="nome" placeholder="Nome da Empresa" required class="w-full p-3 border rounded-lg">
+      <input type="email" name="email" placeholder="Email" required class="w-full p-3 border rounded-lg">
+      <input type="email" name="confirm_email" placeholder="Confirme o Email" required class="w-full p-3 border rounded-lg">
+      <input type="password" name="senha" placeholder="Senha" required class="w-full p-3 border rounded-lg">
+      <input type="password" name="confirm_senha" placeholder="Confirme a Senha" required class="w-full p-3 border rounded-lg">
+
+      <select name="tipo" class="w-full p-3 border rounded-lg text-center" required>
+        <option value="Micro empreendedor">Micro Empreendedor</option>
+        <option value="Armazém">Armazém</option>
+      </select>
+
+      <button type="submit" class="w-full bg-orange-500 text-white p-3 rounded-lg hover:bg-orange-600 transition">
+        Cadastrar
+      </button>
+    </form>
+
+    <p class="text-center mt-6 text-sm text-gray-600">
+      <a href="/login" class="text-orange-500 hover:underline">← Voltar ao Login</a>
+    </p>
+  </div>
+</body>
+</html>
